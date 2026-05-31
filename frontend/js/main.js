@@ -1,8 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────────────────────────────────────
+// ✅ Fix — add /api/contact to prod too
 const API = {
-  prod:  "https://portfolio-a-ce4h.onrender.com",
+  prod:  "https://portfolio-a-ce4h.onrender.com/api/contact",
   local: "http://localhost:8000/api/contact",
 };
 
