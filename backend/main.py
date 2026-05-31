@@ -25,7 +25,7 @@ from pydantic import BaseModel, EmailStr, Field
 RESEND_API_KEY = os.environ["RESEND_API_KEY"]          # required — set on Render
 CONTACT_TO     = "zulfatkhamis7@gmail.com"
 CONTACT_FROM   = "onboarding@resend.dev"
-ALLOWED_ORIGIN = "https://vercel.com/zulfat-s-projects/portfolio-a"      # your Vercel URL
+ALLOWED_ORIGIN = "https://portfolio-a-nine-blue.vercel.app"      # your Vercel URL
 RESEND_URL     = "https://api.resend.com/emails"
 REQUEST_TIMEOUT = 15  # seconds
 
