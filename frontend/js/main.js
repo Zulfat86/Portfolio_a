@@ -1,25 +1,32 @@
-// === CONFIG ===
-// AUTO-DETECT: uses localhost backend when developing, Render backend when live.
-// After deploying to Render, replace PROD_API_URL with your actual service URL.
-const PROD_API_URL = "https://portfolio-api.onrender.com/api/contact";
-const LOCAL_API_URL = "http://localhost:8000/api/contact";
-const API_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
-  ? LOCAL_API_URL
-  : PROD_API_URL;
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────────────────────────────────────
+const API = {
+  prod:  "https://portfolio-api.onrender.com/api/contact",
+  local: "http://localhost:8000/api/contact",
+};
 
-// === SKILLS DATA ===
+const API_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+  ? API.local
+  : API.prod;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA — Skills
+// ─────────────────────────────────────────────────────────────────────────────
 const skills = [
-  { name: "HTML & CSS",        icon: "fab fa-html5",    pct: 95 },
-  { name: "Python",            icon: "fab fa-python",   pct: 88 },
-  { name: "Django",            icon: "fas fa-server",   pct: 80 },
-  { name: "Power BI",          icon: "fas fa-chart-pie", pct: 85 },
-  { name: "Git & GitHub",      icon: "fab fa-github",   pct: 85 },
-  { name: "Machine Learning",  icon: "fas fa-brain",    pct: 78 },
-  { name: "SQL & Databases",   icon: "fas fa-database", pct: 80 },
-  { name: "Data Visualization",icon: "fas fa-chart-line",pct: 88 },
+  { name: "HTML & CSS",         icon: "fab fa-html5",     pct: 95 },
+  { name: "Python",             icon: "fab fa-python",    pct: 88 },
+  { name: "Django",             icon: "fas fa-server",    pct: 80 },
+  { name: "Power BI",           icon: "fas fa-chart-pie", pct: 85 },
+  { name: "Git & GitHub",       icon: "fab fa-github",    pct: 85 },
+  { name: "Machine Learning",   icon: "fas fa-brain",     pct: 78 },
+  { name: "SQL & Databases",    icon: "fas fa-database",  pct: 80 },
+  { name: "Data Visualization", icon: "fas fa-chart-line",pct: 88 },
 ];
 
-// === PROJECTS DATA ===
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA — Projects
+// ─────────────────────────────────────────────────────────────────────────────
 const projects = [
   {
     image: "images/sales-dashboard.png",
@@ -51,107 +58,139 @@ const projects = [
   },
 ];
 
-// === RENDER SKILLS ===
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER — Skills grid
+// ─────────────────────────────────────────────────────────────────────────────
 const skillsGrid = document.getElementById("skillsGrid");
-skills.forEach((s) => {
+
+skills.forEach(({ icon, name, pct }) => {
   skillsGrid.insertAdjacentHTML(
     "beforeend",
     `<div class="col-md-6 reveal">
       <div class="skill-card">
         <div class="skill-head">
-          <div><i class="${s.icon}"></i> <span class="ms-2 fw-semibold">${s.name}</span></div>
+          <div><i class="${icon}"></i><span class="ms-2 fw-semibold">${name}</span></div>
         </div>
-        <div class="progress"><div class="progress-bar" data-pct="${s.pct}"></div></div>
+        <div class="progress">
+          <div class="progress-bar" data-pct="${pct}"></div>
+        </div>
       </div>
-    </div>`
+    </div>`,
   );
 });
 
-// === RENDER PROJECTS ===
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER — Projects grid
+// ─────────────────────────────────────────────────────────────────────────────
 const projectsGrid = document.getElementById("projectsGrid");
-projects.forEach((p) => {
-  const thumb = p.image
-    ? `<div class="project-thumb has-img" style="background-image:url('${p.image}')"></div>`
-    : `<div class="project-thumb"><i class="${p.icon}"></i></div>`;
+
+projects.forEach(({ image, icon, title, desc, tags, year }) => {
+  const thumb = image
+    ? `<div class="project-thumb has-img" style="background-image:url('${image}')"></div>`
+    : `<div class="project-thumb"><i class="${icon}"></i></div>`;
+
+  const tagHTML = tags.map((t) => `<span class="tag">${t}</span>`).join("");
+
   projectsGrid.insertAdjacentHTML(
     "beforeend",
     `<div class="col-md-6 col-lg-4 reveal">
       <div class="project-card h-100">
         ${thumb}
         <div class="project-body">
-          <span class="tag mb-2">${p.year}</span>
-          <h4 class="mt-2">${p.title}</h4>
-          <p class="text-muted-c">${p.desc}</p>
-          <div>${p.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
+          <span class="tag mb-2">${year}</span>
+          <h4 class="mt-2">${title}</h4>
+          <p class="text-muted-c">${desc}</p>
+          <div>${tagHTML}</div>
         </div>
       </div>
-    </div>`
+    </div>`,
   );
 });
 
-// === SCROLL REVEAL + PROGRESS BAR ANIMATION ===
-const io = new IntersectionObserver(
+// ─────────────────────────────────────────────────────────────────────────────
+// ANIMATION — Scroll reveal + progress bars
+// ─────────────────────────────────────────────────────────────────────────────
+const revealObserver = new IntersectionObserver(
   (entries) => {
-    entries.forEach((e) => {
-      if (e.isIntersecting) {
-        e.target.classList.add("visible");
-        e.target.querySelectorAll(".progress-bar").forEach((bar) => {
-          bar.style.width = bar.dataset.pct + "%";
-        });
-        io.unobserve(e.target);
-      }
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+
+      entry.target.classList.add("visible");
+
+      entry.target.querySelectorAll(".progress-bar").forEach((bar) => {
+        bar.style.width = bar.dataset.pct + "%";
+      });
+
+      revealObserver.unobserve(entry.target);
     });
   },
-  { threshold: 0.15 }
+  { threshold: 0.15 },
 );
-document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 
-// === CONTACT FORM ===
+document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONTACT FORM
+// ─────────────────────────────────────────────────────────────────────────────
 const form    = document.getElementById("contactForm");
 const status  = document.getElementById("formStatus");
 const btnText = document.getElementById("btnText");
 
+const setStatus = (text, type) => {
+  status.textContent = text;
+  status.className   = `mt-3 ${type}`;
+};
+
+const setBtn = (sending) => {
+  btnText.innerHTML = sending
+    ? '<i class="fas fa-spinner fa-spin"></i> Sending...'
+    : '<i class="fas fa-paper-plane"></i> Send Message';
+};
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  status.textContent = "";
-  status.className   = "mt-3";
-  btnText.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+  setStatus("", "");
+  setBtn(true);
 
-  const data = Object.fromEntries(new FormData(form));
+  const payload = Object.fromEntries(new FormData(form));
 
   try {
     const res  = await fetch(API_URL, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify(data),
+      body:    JSON.stringify(payload),
     });
 
     const json = await res.json();
     if (!res.ok) throw new Error(json.detail || "Failed to send message");
 
-    status.textContent = "✓ Message sent! I'll get back to you soon.";
-    status.classList.add("success");
+    setStatus("✓ Message sent! I'll get back to you soon.", "success");
     form.reset();
   } catch (err) {
     const msg = err.message.includes("Failed to fetch")
       ? "✗ Could not reach the server. Please try again later."
-      : "✗ " + err.message;
-    status.textContent = msg;
-    status.classList.add("error");
+      : `✗ ${err.message}`;
+    setStatus(msg, "error");
   } finally {
-    btnText.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+    setBtn(false);
   }
 });
 
-// === NAV ACTIVE STATE ===
+// ─────────────────────────────────────────────────────────────────────────────
+// NAV — Active link on scroll
+// ─────────────────────────────────────────────────────────────────────────────
 const navLinks = document.querySelectorAll(".custom-nav .nav-link");
+
 window.addEventListener("scroll", () => {
-  const y = window.scrollY + 120;
+  const scrollY = window.scrollY + 120;
+
   document.querySelectorAll("section").forEach((sec) => {
-    if (sec.offsetTop <= y && sec.offsetTop + sec.offsetHeight > y) {
-      navLinks.forEach((l) =>
-        l.classList.toggle("active", l.getAttribute("href") === "#" + sec.id)
-      );
-    }
+    const inView = sec.offsetTop <= scrollY && sec.offsetTop + sec.offsetHeight > scrollY;
+
+    navLinks.forEach((link) => {
+      if (link.getAttribute("href") === `#${sec.id}`) {
+        link.classList.toggle("active", inView);
+      }
+    });
   });
 });
